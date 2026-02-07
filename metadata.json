@@ -1,0 +1,8 @@
+{
+  "name": "Nurtur",
+  "description": "An AI agent connecting low-income residents in food deserts with affordable fresh groceries, farmers, and healthy meal ideas.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
