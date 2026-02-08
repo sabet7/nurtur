@@ -1,34 +1,47 @@
 import React from 'react';
 
-interface Props {
-  type: 'artichoke' | 'lemon' | 'strawberries' | 'blueberries' | 'rosemary' | 
-        'carrots' | 'pomegranate' | 'celery' | 'kale' | 'tomatoes';
+type WatercolorType = 
+  | 'artichoke' | 'asparagus' | 'bell pepper' | 'blueberries' 
+  | 'carrots' | 'cherry' | 'cucumber' | 'fennel flower'
+  | 'garlic' | 'lacinto kale' | 'lemon' | 'onion'
+  | 'pomegranate' | 'rosemary' | 'strawberries' | 'tomatoes';
+
+interface WatercolorDecorationProps {
+  type: WatercolorType;
   className?: string;
 }
 
-const POSITIONS: Record<string, string> = {
-  carrots: '5% 15%',
-  pomegranate: '50% 8%',
-  strawberries: '88% 8%',
-  celery: '5% 35%',
-  artichoke: '35% 35%',
-  lemon: '68% 48%',
-  tomatoes: '5% 65%',
-  kale: '35% 65%',
-  blueberries: '68% 75%',
-  rosemary: '88% 35%'
+const IMAGE_MAP: Record<WatercolorType, string> = {
+  'artichoke': 'ARTICHOKE.png',
+  'asparagus': 'ASPARAGUS.png',
+  'bell pepper': 'BELL PEPPER.png',
+  'blueberries': 'BLUEBERRIES.png',
+  'carrots': 'CARROTS.png',
+  'cherry': 'CHERRY.png',
+  'cucumber': 'CUCUMBER.png',
+  'fennel flower': 'FENNEL FLOWER.png',
+  'garlic': 'GARLIC.png',
+  'lacinto kale': 'LACINTO KALE.png',
+  'lemon': 'LEMON.png',
+  'onion': 'ONION.png',
+  'pomegranate': 'POMEGRANATE.png',
+  'rosemary': 'ROSEMARY.png',
+  'strawberries': 'STRAWBERRIES.png',
+  'tomatoes': 'TOMATOES.png'
 };
 
-const WatercolorDecoration: React.FC<Props> = ({ type, className = '' }) => {
+const WatercolorDecoration: React.FC<WatercolorDecorationProps> = ({ type, className = '' }) => {
+  const filename = IMAGE_MAP[type];
+  const imagePath = `/images/${filename}`;
+
   return (
     <div 
-      className={className}
+      className={`absolute pointer-events-none ${className}`}
       style={{
-        position: 'absolute',
-        backgroundImage: 'url(/images/watercolors.png)',
-        backgroundSize: '600% 600%',
-        backgroundPosition: POSITIONS[type] || POSITIONS.artichoke,
-        pointerEvents: 'none',
+        backgroundImage: `url(${imagePath})`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
         animation: 'float 6s ease-in-out infinite'
       }}
     />
