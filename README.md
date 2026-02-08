@@ -18,3 +18,12 @@ View your app in AI Studio: https://ai.studio/apps/drive/1UyEGeZ7EY3zpnKnYC10BGu
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+## License
+
+MIT License - Copyright (c) 2026 Sara Villar
+
+## Attribution
+
+If you use this code, please credit:
+**Nurtur** by Sara Villar - Built for Gemini 3 Hackathon 2026
