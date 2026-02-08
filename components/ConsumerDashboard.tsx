@@ -26,19 +26,43 @@ const CameraModal: React.FC<{ onClose: () => void; onCapture: (base64: string) =
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isReady, setIsReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function setupCamera() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          setError('Your browser does not support camera access. Please use Chrome, Edge, or Safari.');
+          return;
+        }
+
+        console.log('📷 Requesting camera permission...');
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            facingMode: 'environment',
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          } 
+        });
+        
+        console.log('✅ Camera access granted!');
+        
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           setIsReady(true);
         }
-      } catch (err) {
-        console.error("Camera access denied", err);
-        alert("Please enable camera access to scan your fridge.");
-        onClose();
+      } catch (err: any) {
+        console.error("Camera access error:", err);
+        
+        let userMessage = 'Please enable camera access to scan your fridge.';
+        
+        if (err.name === 'NotAllowedError') {
+          userMessage = 'Camera access was denied. Please click the 🔒 lock icon in your address bar and allow camera access.';
+        } else if (err.name === 'NotFoundError') {
+          userMessage = 'No camera found. Please connect a camera and try again.';
+        }
+        
+        setError(userMessage);
       }
     }
     setupCamera();
@@ -54,37 +78,54 @@ const CameraModal: React.FC<{ onClose: () => void; onCapture: (base64: string) =
       canvasRef.current.width = videoRef.current.videoWidth;
       canvasRef.current.height = videoRef.current.videoHeight;
       context?.drawImage(videoRef.current, 0, 0);
-      const data = canvasRef.current.toDataURL('image/jpeg');
+      const data = canvasRef.current.toDataURL('image/jpeg', 0.95);
       onCapture(data.split(',')[1]);
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black/90 z-[200] flex flex-col items-center justify-center p-4">
-      <button onClick={onClose} className="absolute top-8 right-8 text-white p-2 hover:bg-white/10 rounded-full">
+      <button onClick={onClose} className="absolute top-8 right-8 text-white p-2 hover:bg-white/10 rounded-full z-10">
         <X className="w-8 h-8" />
       </button>
-      <div className="relative w-full max-w-lg aspect-[3/4] bg-gray-800 rounded-3xl overflow-hidden border-4 border-white/20">
-        <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
-        <canvas ref={canvasRef} className="hidden" />
-        <div className="absolute inset-0 border-[40px] border-black/20 pointer-events-none flex items-center justify-center">
-          <div className="w-full h-full border-2 border-dashed border-white/40 rounded-xl" />
+      
+      {error ? (
+        <div className="text-center text-white max-w-md">
+          <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-400" />
+          <p className="text-lg font-bold mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-white text-black rounded-full font-bold hover:bg-gray-200"
+          >
+            Refresh & Try Again
+          </button>
         </div>
-      </div>
-      <div className="mt-12 flex flex-col items-center gap-4">
-        <button 
-          onClick={capture}
-          disabled={!isReady}
-          className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-transform disabled:opacity-50"
-        >
-          <div className="w-16 h-16 border-4 border-black rounded-full" />
-        </button>
-        <p className="text-white font-bold uppercase tracking-widest text-xs">Snap your open fridge</p>
-      </div>
+      ) : (
+        <>
+          <div className="relative w-full max-w-lg aspect-[3/4] bg-gray-800 rounded-3xl overflow-hidden border-4 border-white/20">
+            <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+            <canvas ref={canvasRef} className="hidden" />
+            <div className="absolute inset-0 border-[40px] border-black/20 pointer-events-none flex items-center justify-center">
+              <div className="w-full h-full border-2 border-dashed border-white/40 rounded-xl" />
+            </div>
+          </div>
+          <div className="mt-12 flex flex-col items-center gap-4">
+            <button 
+              onClick={capture}
+              disabled={!isReady}
+              className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-2xl active:scale-90 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="w-16 h-16 border-4 border-black rounded-full" />
+            </button>
+            <p className="text-white font-bold uppercase tracking-widest text-xs">
+              {isReady ? 'Snap your open fridge' : 'Waiting for camera...'}
+            </p>
+          </div>
+        </>
+      )}
     </div>
   );
 };
-
 const GiftBoxModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [step, setStep] = useState(1);
   const [data, setData] = useState({ to: '', date: '', isEmpty: false, budget: 15 });
