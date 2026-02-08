@@ -146,14 +146,14 @@ const App: React.FC = () => {
   if (view === 'landing') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#fcfdfa] p-6 relative overflow-hidden font-sans">
-        <WatercolorDecoration type="artichoke" className="top-[5%] left-[10%] w-64 h-64 rotate-[15deg]" />
-        <WatercolorDecoration type="cherries" className="top-[15%] right-[5%] w-56 h-56 rotate-[-10deg]" />
-        <WatercolorDecoration type="pepper" className="bottom-[10%] left-[5%] w-72 h-72 rotate-[-20deg]" />
+        <WatercolorDecoration type="bell pepper" className="top-[5%] left-[10%] w-64 h-64 rotate-[15deg]" />
+        <WatercolorDecoration type="cherry" className="top-[15%] right-[5%] w-56 h-56 rotate-[-10deg]" />
+        <WatercolorDecoration type="cucumber" className="bottom-[10%] left-[5%] w-72 h-72 rotate-[-20deg]" />
         <WatercolorDecoration type="carrots" className="bottom-[5%] right-[10%] w-64 h-64 rotate-[25deg]" />
         <WatercolorDecoration type="pomegranate" className="top-[40%] -left-20 w-80 h-80 opacity-20" />
-        <WatercolorDecoration type="peach" className="top-[50%] -right-20 w-80 h-80 opacity-20" />
-        <WatercolorDecoration type="flowers" className="bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-96 opacity-10" />
-        <WatercolorDecoration type="blob" className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-10" />
+        <WatercolorDecoration type="onion" className="top-[50%] -right-20 w-80 h-80 opacity-20" />
+        <WatercolorDecoration type="fennel flower" className="bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-96 opacity-10" />
+        <WatercolorDecoration type="garlic" className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-10" />
 
         <div className="z-10 text-center max-w-2xl px-4 animate-in fade-in slide-in-from-bottom-8 duration-1000">
           <div className="mb-12">
