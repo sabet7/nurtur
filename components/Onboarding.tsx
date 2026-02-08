@@ -1,4 +1,4 @@
-
+// JJ
 import React, { useState } from 'react';
 import { UserRole, UserProfile } from '../types';
 import WatercolorDecoration from './WatercolorDecoration';
@@ -273,3 +273,4 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 };
 
 export default Onboarding;
+// SDG
