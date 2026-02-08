@@ -1,9 +1,7 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI, LiveServerMessage, Modality, Type, FunctionDeclaration } from '@google/genai';
 import { X, Mic, MicOff, Volume2, Zap, AlertCircle, CheckCircle2, Languages } from 'lucide-react';
 
-// Encoding/Decoding helpers 
 function decode(base64: string) {
   const binaryString = atob(base64);
   const len = binaryString.length;
@@ -58,6 +56,7 @@ const VoiceAgent: React.FC<{ onClose: () => void, location: string, onTriggerSca
   const [transcription, setTranscription] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [inputVolume, setInputVolume] = useState(0);
+  const [permissionGranted, setPermissionGranted] = useState(false);
   
   const audioContextRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -66,17 +65,28 @@ const VoiceAgent: React.FC<{ onClose: () => void, location: string, onTriggerSca
   const sourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
   const volumeMeterRef = useRef<number>(0);
 
-useEffect(() => {
+  useEffect(() => {
     let animationFrame: number;
     
     const initializeVoice = async () => {
       try {
-        // Step 1: Request mic permission
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('Your browser does not support microphone access. Please use Chrome, Edge, or Safari.');
+        }
+
+        console.log('🎤 Requesting microphone permission...');
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          } 
+        });
+        
         console.log('✅ Microphone access granted!');
+        setPermissionGranted(true);
         stream.getTracks().forEach(track => track.stop());
         
-        // Step 2: Start volume animation
         const updateVolume = () => {
           setInputVolume(prev => {
             const target = volumeMeterRef.current;
@@ -86,15 +96,26 @@ useEffect(() => {
         };
         updateVolume();
         
-      } catch (err) {
+      } catch (err: any) {
         console.error('❌ Microphone permission denied:', err);
-        alert('Please allow microphone access to use voice search.');
+        
+        let userMessage = 'Please allow microphone access to use voice search.';
+        
+        if (err.name === 'NotAllowedError') {
+          userMessage = 'Microphone access was denied. Please click the 🔒 lock icon in your address bar and allow microphone access.';
+        } else if (err.name === 'NotFoundError') {
+          userMessage = 'No microphone found. Please connect a microphone and try again.';
+        } else if (err.message) {
+          userMessage = err.message;
+        }
+        
+        setErrorMessage(userMessage);
+        setState('error');
       }
     };
     
     initializeVoice();
     
-    // Cleanup
     return () => {
       cancelAnimationFrame(animationFrame);
       stopSession();
@@ -102,30 +123,51 @@ useEffect(() => {
   }, []);
 
   const startSession = async () => {
+    if (!permissionGranted) {
+      setErrorMessage('Microphone permission not granted. Please refresh and allow access.');
+      setState('error');
+      return;
+    }
+
     setIsActive(true);
     setState('listening');
     setErrorMessage(null);
     setTranscription('');
     
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      console.error('❌ API key not found!');
+      setErrorMessage('API key not configured. Please check environment variables.');
+      setState('error');
+      setIsActive(false);
+      return;
+    }
+    
+    const ai = new GoogleGenAI({ apiKey });
     
     audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
     const inputCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
     
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
       streamRef.current = stream;
 
       const sessionPromise = ai.live.connect({
         model: 'gemini-2.5-flash-native-audio-preview-12-2025',
         callbacks: {
           onopen: () => {
+            console.log('🎙️ Voice session opened');
             const source = inputCtx.createMediaStreamSource(stream);
             const scriptProcessor = inputCtx.createScriptProcessor(4096, 1, 1);
             scriptProcessor.onaudioprocess = (e) => {
               const inputData = e.inputBuffer.getChannelData(0);
               
-              // Calculate real-time volume for visual feedback
               let sum = 0;
               for (let i = 0; i < inputData.length; i++) {
                 sum += inputData[i] * inputData[i];
@@ -155,7 +197,6 @@ useEffect(() => {
               for (const fc of message.toolCall.functionCalls) {
                 if (fc.name === 'scan_fridge') {
                   const args = fc.args as any;
-                  // First acknowledge
                   sessionPromise.then((session) => {
                     session.sendToolResponse({
                       functionResponses: {
@@ -165,7 +206,6 @@ useEffect(() => {
                       }
                     })
                   });
-                  // Trigger UI transition
                   onTriggerScan(args?.item_query);
                 }
               }
@@ -205,7 +245,10 @@ useEffect(() => {
             setErrorMessage("Connection issue. Please try again.");
             setIsActive(false);
           },
-          onclose: () => setIsActive(false),
+          onclose: () => {
+            console.log('🔇 Voice session closed');
+            setIsActive(false);
+          },
         },
         config: {
           responseModalities: [Modality.AUDIO],
@@ -225,10 +268,16 @@ useEffect(() => {
       });
       
       sessionRef.current = await sessionPromise;
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error('Session error:', err);
       setState('error');
-      setErrorMessage("Microphone access or API connection failed.");
+      
+      if (err.name === 'NotAllowedError') {
+        setErrorMessage("Microphone access denied. Please allow microphone in your browser settings.");
+      } else {
+        setErrorMessage("Connection failed. Please check your internet and try again.");
+      }
+      
       setIsActive(false);
     }
   };
@@ -305,9 +354,15 @@ useEffect(() => {
             </div>
           )}
           {state === 'error' && (
-            <div className="flex flex-col items-center justify-center text-red-500 p-4 text-center">
+            <div className="flex flex-col items-center justify-center text-red-500 p-4 text-center max-w-md">
               <AlertCircle className="w-16 h-16 mb-4" />
-              <p className="font-bold">{errorMessage}</p>
+              <p className="font-bold text-sm leading-relaxed">{errorMessage}</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg text-xs font-bold hover:bg-red-600"
+              >
+                Refresh Page
+              </button>
             </div>
           )}
         </div>
@@ -346,7 +401,8 @@ useEffect(() => {
         )}
         <button 
           onClick={isActive ? stopSession : startSession} 
-          className={`relative w-28 h-28 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-90 z-10 ${
+          disabled={state === 'error' && !permissionGranted}
+          className={`relative w-28 h-28 rounded-full flex items-center justify-center shadow-2xl transition-all active:scale-90 z-10 disabled:opacity-50 disabled:cursor-not-allowed ${
             isActive ? 'bg-red-500 hover:bg-red-600 ring-8 ring-red-50' : 'bg-green-700 hover:bg-green-800 ring-8 ring-green-50'
           }`}
         >
@@ -356,8 +412,8 @@ useEffect(() => {
 
       <div className="mt-16 flex items-center gap-8 text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em] font-sans">
         <div className="flex items-center gap-2">
-          <div className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-green-500 animate-pulse' : 'bg-gray-200'}`} />
-          {isActive ? 'Mic Active' : 'Mic Ready'}
+          <div className={`w-1.5 h-1.5 rounded-full ${permissionGranted ? 'bg-green-500 animate-pulse' : 'bg-gray-200'}`} />
+          {permissionGranted ? 'Mic Ready' : 'Requesting Permission...'}
         </div>
         <div className="w-1 h-1 bg-gray-200 rounded-full" />
         <div className="flex items-center gap-2">
