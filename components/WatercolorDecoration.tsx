@@ -4,7 +4,7 @@ type WatercolorType =
   | 'artichoke' | 'asparagus' | 'bell pepper' | 'blueberries' 
   | 'carrots' | 'cherry' | 'cucumber' | 'fennel flower'
   | 'garlic' | 'lacinto kale' | 'lemon' | 'onion'
-  | 'pomegranate' | 'rosemary' | 'strawberries' | 'tomatoes';
+  | 'pomegranate' | 'rosemary' | 'strawberries';
 
 interface WatercolorDecorationProps {
   type: WatercolorType;
@@ -26,8 +26,7 @@ const IMAGE_MAP: Record<WatercolorType, string> = {
   'onion': 'ONION.png',
   'pomegranate': 'POMEGRANATE.png',
   'rosemary': 'ROSEMARY.png',
-  'strawberries': 'STRAWBERRIES.png',
-  'tomatoes': 'TOMATOES.png'
+  'strawberries': 'STRAWBERRIES.png'
 };
 
 const WatercolorDecoration: React.FC<WatercolorDecorationProps> = ({ type, className = '' }) => {
