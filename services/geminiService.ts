@@ -33,7 +33,7 @@ export const getAIResponse = async (
   useMaps: boolean = false,
   budget?: string
 ) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
   
   const budgetInstruction = budget ? `IMPORTANT: The user has a strict budget of ${budget} for this specific shopping trip. Prioritize items and stores where the total cost stays within this limit. Highlight the best value-for-money options.` : '';
 
@@ -98,7 +98,7 @@ export const getAIResponse = async (
 };
 
 export const analyzeFridgeImage = async (base64Image: string, profile: UserProfile, onComplete?: (items: any[]) => void) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
   const imagePart = {
     inlineData: {
       mimeType: 'image/jpeg',
@@ -141,7 +141,7 @@ export const analyzeFridgeImage = async (base64Image: string, profile: UserProfi
 };
 
 export const getAlternative = async (item: string, profile: UserProfile) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
   const prompt = `Provide a healthy, low-cost budget alternative for ${item}. Be extremely brief.`;
   
   const response = await ai.models.generateContent({
