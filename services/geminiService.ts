@@ -1,4 +1,4 @@
-`JJ` 
+//JJ 
 import { GoogleGenAI, Type, GenerateContentResponse, Modality } from "@google/genai";
 import { UserProfile } from "../types";
 
@@ -154,4 +154,4 @@ export const getAlternative = async (item: string, profile: UserProfile) => {
   });
   return response.text;
 };
-`SDG`
+//SDG
