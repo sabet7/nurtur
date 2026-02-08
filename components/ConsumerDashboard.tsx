@@ -239,8 +239,10 @@ const ConsumerDashboard: React.FC<{ profile: UserProfile, onUpdateProfile: (p: U
       ]);
   };
 
-  const handleSearch = async (e?: React.FormEvent, customQuery?: string) => {
-    e?.preventDefault();
+  const handleSearch = async (e?: React.FormEvent, | Event, customQuery?: string) => {
+    if (e && 'preventDefault' in e){
+      e?.preventDefault();
+    } 
     const q = customQuery || query;
     if (!q) return;
     setIsSearching(true);
