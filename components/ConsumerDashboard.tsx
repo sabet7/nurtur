@@ -499,7 +499,7 @@ const ConsumerDashboard: React.FC<{ profile: UserProfile, onUpdateProfile: (p: U
         {/* SEARCH */}
         {activeTab === 'search' && (
           <div className="flex flex-col items-center py-8 text-center relative min-h-[70vh]">
-            <WatercolorDecoration type="artichoke" className="top-0 left-0 w-64 h-64 opacity-60" />
+            <WatercolorDecoration type="asparagus" className="top-0 left-0 w-64 h-64 opacity-60" />
             <WatercolorDecoration type="lemon" className="bottom-0 right-0 w-64 h-64 opacity-60" />
             
             <div className={`transition-all duration-700 ${aiAnalysis || isSearching ? 'scale-90 mb-8' : 'mb-16 mt-12'}`}>
