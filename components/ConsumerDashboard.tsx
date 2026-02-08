@@ -281,27 +281,49 @@ const ConsumerDashboard: React.FC<{ profile: UserProfile, onUpdateProfile: (p: U
   };
 
   const handleSearch = async (e?: React.FormEvent | Event, customQuery?: string) => {
-    if (e && 'preventDefault' in e){
-      e?.preventDefault();
-    } 
-    const q = customQuery || query;
-    if (!q) return;
-    setIsSearching(true);
-    setAiAnalysis(null);
-    setGroundingLinks([]);
+  // Prevent default form submission
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  
+  const q = customQuery || query;
+  if (!q) return;
+  
+  setIsSearching(true);
+  setAiAnalysis(null);
+  setGroundingLinks([]);
+  
+  try {
+    console.log('🔍 Searching for:', q);
+    console.log('📍 Location:', profile.location);
+    console.log('💰 Budget:', `$${searchBudget}`);
     
-    try {
-      const response = await getAIResponse(q, profile, true, false, `$${searchBudget}`);
-      setAiAnalysis(response.text);
-      setGroundingLinks(response.grounding);
-      setActiveTab('search');
-    } catch (err) { 
-      console.error(err);
-      setAiAnalysis("Sorry, I encountered an error while searching. Please try again.");
-    } finally { 
-      setIsSearching(false); 
+    const response = await getAIResponse(q, profile, true, false, `$${searchBudget}`);
+    
+    console.log('✅ Search response:', response);
+    
+    if (!response || !response.text) {
+      throw new Error('No response from AI');
     }
-  };
+    
+    setAiAnalysis(response.text);
+    setGroundingLinks(response.grounding || []);
+    setActiveTab('search');
+    
+  } catch (err: any) { 
+    console.error('❌ Search error:', err);
+    console.error('Error details:', {
+      message: err.message,
+      name: err.name,
+      stack: err.stack
+    });
+    
+    setAiAnalysis(`Sorry, I encountered an error: ${err.message || 'Unknown error'}. Please try again.`);
+  } finally { 
+    setIsSearching(false); 
+  }
+};
 
   const handleCapture = async (base64: string) => {
     setShowCamera(false);
@@ -508,18 +530,22 @@ const ConsumerDashboard: React.FC<{ profile: UserProfile, onUpdateProfile: (p: U
             </div>
 
             <div className="w-full max-w-2xl space-y-4 relative z-20">
-              <form onSubmit={handleSearch} className="relative group">
-                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-green-800"><Search className="w-7 h-7" /></div>
+              <form onSubmit={(e) => handleSearch(e)} className="relative group">
+                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-green-800">
+                  <Search className="w-7 h-7" />
+                </div>
                 <input 
-                  type="text" value={query} onChange={e => setQuery(e.target.value)}
-                  placeholder={`Search for affordable food...`} 
+                  type="text" 
+                  value={query} 
+                  onChange={e => setQuery(e.target.value)}
+                  placeholder="Search for affordable food..." 
                   className="w-full py-7 pl-16 pr-20 bg-white border-2 border-gray-100 rounded-[32px] shadow-2xl text-xl outline-none focus:border-green-700 transition-all placeholder:text-gray-300"
-                />
+                  />
                 <button 
                   type="button" 
                   onClick={() => setShowVoiceAgent(true)} 
                   className="absolute right-6 top-1/2 -translate-y-1/2 p-3 bg-green-50 text-green-700 rounded-2xl hover:bg-green-100 transition-all group"
-                >
+                  >
                   <Mic className="w-7 h-7 group-hover:scale-110 transition-transform" />
                 </button>
               </form>
@@ -551,6 +577,8 @@ const ConsumerDashboard: React.FC<{ profile: UserProfile, onUpdateProfile: (p: U
               key={tag} 
               onClick={async (e) => { 
                 e.preventDefault();
+                e.stopPropagation();
+                console.log('🔘 Pill clicked:', tag);
                 setQuery(tag); 
                 await handleSearch(e, tag); 
               }} 
