@@ -153,7 +153,7 @@ const App: React.FC = () => {
           <WatercolorDecoration type="cherry" className="w-full h-full" />
         </div>
         <div className="absolute bottom-[25%] left-[2%] w-64 h-64 opacity-35 pointer-events-none z-0" style={{ transform: 'rotate(-20deg)' }}>
-          <WatercolorDecoration type="cucumber" className="w-full h-full" />
+          <WatercolorDecoration type="fennel flower" className="w-full h-full" />
         </div>
         <div className="absolute bottom-[5%] right-[3%] w-60 h-60 opacity-40 pointer-events-none z-0" style={{ transform: 'rotate(18deg)' }}>
           <WatercolorDecoration type="carrots" className="w-full h-full" />
