@@ -37,9 +37,10 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
   if (step === 0) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 relative overflow-hidden font-sans">
-        <WatercolorDecoration type="blob" className="top-20 left-10 bg-green-100" />
-        <WatercolorDecoration type="blob" className="bottom-20 right-10 bg-yellow-100" />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#fcfdfa] p-6 relative overflow-hidden font-sans">
+        <WatercolorDecoration type="strawberries" className="top-10 left-10 w-48 h-48 opacity-40 rotate-12" />
+        <WatercolorDecoration type="lacinto kale" className="bottom-10 right-10 w-56 h-56 opacity-40 -rotate-12" />
+        <WatercolorDecoration type="tomatoes" className="top-1/2 -left-20 w-64 h-64 opacity-20" />
         
         <h2 className="text-4xl font-serif font-bold mb-8 text-center text-green-900">Who are you?</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
