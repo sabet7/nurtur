@@ -1,3 +1,4 @@
+// JJ
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI, LiveServerMessage, Modality, Type, FunctionDeclaration } from '@google/genai';
 import { X, Mic, MicOff, Volume2, Zap, AlertCircle, CheckCircle2, Languages } from 'lucide-react';
@@ -426,3 +427,4 @@ const VoiceAgent: React.FC<{ onClose: () => void, location: string, onTriggerSca
 };
 
 export default VoiceAgent;
+// SDG
