@@ -544,13 +544,21 @@ const ConsumerDashboard: React.FC<{ profile: UserProfile, onUpdateProfile: (p: U
                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center md:text-left">AI will prioritize results within this limit</p>
               </div>
             </div>
-
+            
             <div className="mt-12 flex flex-wrap justify-center gap-3 relative z-20">
-                {['Apples', 'EBT Stores', 'Fresh Kale', 'Local Milk', 'Farmers Markets'].map(tag => (
-                    <button key={tag} onClick={() => { setQuery(tag); handleSearch(undefined, tag); }} className="px-5 py-2.5 bg-white border border-gray-100 rounded-full text-sm font-bold text-gray-500 hover:border-green-300 hover:text-green-700 transition-all">
-                        {tag}
-                    </button>
-                ))}
+              {['Apples', 'EBT Stores', 'Fresh Kale', 'Local Milk', 'Farmers Markets'].map(tag => (
+            <button 
+              key={tag} 
+              onClick={async (e) => { 
+                e.preventDefault();
+                setQuery(tag); 
+                await handleSearch(e, tag); 
+              }} 
+              className="px-5 py-2.5 bg-white border border-gray-100 rounded-full text-sm font-bold text-gray-500 hover:border-green-300 hover:text-green-700 transition-all"
+              >
+              {tag}
+            </button>
+          ))}
             </div>
 
             {isSearching && (
