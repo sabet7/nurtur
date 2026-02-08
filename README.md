@@ -19,6 +19,25 @@ View your app in AI Studio: https://ai.studio/apps/drive/1UyEGeZ7EY3zpnKnYC10BGu
 3. Run the app:
    `npm run dev`
 
+# 🌱 Nurtur - AI Food Sourcing Agent
+
+**Built by Sara Villar for Google Gemini 3 Hackathon (February 2026)**
+
+---
+
+## 🏆 Hackathon Submission
+
+This project was created for the Google Gemini 3 Hackathon.
+- **Developer:** Sara Villar
+- **Submission Date:** February 8, 2026
+- **Demo:** [Link to video]
+- **Live App:** https://ai.studio/apps/drive/1UyEGeZ7EY3zpnKnYC10BGuarol_aktjH
+
+## © Copyright & License
+
+Copyright (c) 2026 Sara Villar. Released under MIT License.
+Original watercolor artwork © 2026 Sara Villar.
+
 ## License
 
 MIT License - Copyright (c) 2026 Sara Villar
