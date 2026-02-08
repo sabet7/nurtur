@@ -66,17 +66,35 @@ const VoiceAgent: React.FC<{ onClose: () => void, location: string, onTriggerSca
   const sourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
   const volumeMeterRef = useRef<number>(0);
 
-  useEffect(() => {
-    // Volume smoothing loop
+useEffect(() => {
     let animationFrame: number;
-    const updateVolume = () => {
-      setInputVolume(prev => {
-        const target = volumeMeterRef.current;
-        return prev + (target - prev) * 0.2; // Smooth transition
-      });
-      animationFrame = requestAnimationFrame(updateVolume);
+    
+    const initializeVoice = async () => {
+      try {
+        // Step 1: Request mic permission
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('✅ Microphone access granted!');
+        stream.getTracks().forEach(track => track.stop());
+        
+        // Step 2: Start volume animation
+        const updateVolume = () => {
+          setInputVolume(prev => {
+            const target = volumeMeterRef.current;
+            return prev + (target - prev) * 0.2;
+          });
+          animationFrame = requestAnimationFrame(updateVolume);
+        };
+        updateVolume();
+        
+      } catch (err) {
+        console.error('❌ Microphone permission denied:', err);
+        alert('Please allow microphone access to use voice search.');
+      }
     };
-    updateVolume();
+    
+    initializeVoice();
+    
+    // Cleanup
     return () => {
       cancelAnimationFrame(animationFrame);
       stopSession();
