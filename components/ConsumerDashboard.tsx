@@ -1,3 +1,4 @@
+//JJ
 
 import React, { useState, useEffect, useRef } from 'react';
 import { UserProfile, FoodSource, UserRole } from '../types';
@@ -636,3 +637,4 @@ const ConsumerDashboard: React.FC<{ profile: UserProfile, onUpdateProfile: (p: U
 };
 
 export default ConsumerDashboard;
+//SDG
